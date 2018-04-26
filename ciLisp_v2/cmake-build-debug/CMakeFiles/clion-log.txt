@@ -1,0 +1,4 @@
+C:\Users\samie\.CLion2017.3\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2"
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2/cmake-build-debug

@@ -1,0 +1,1 @@
+/usr/bin/cc -m64 -g -O0 -D_DEBUG -Wall -Wextra -Wunreachable-code -g  -Wl,--enable-auto-import CMakeFiles/cilisp.dir/ciLispSrc/ciLisp.c.o CMakeFiles/cilisp.dir/ciLispScanner.c.o CMakeFiles/cilisp.dir/ciLispParser.c.o  -o cilisp.exe -Wl,--out-implib,libcilisp.dll.a -Wl,--major-image-version,0,--minor-image-version,0 
