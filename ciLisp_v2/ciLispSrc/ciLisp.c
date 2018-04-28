@@ -10,6 +10,7 @@
 #include "ciLisp.h"
 #define ROUND_UP_FLOOR .5
 #define MAX_NUMBER_OF_CONDITIONALS 3
+#define MINIMUM_BINARY_OPERANDS 2
 
 //
 // find out which function it is
@@ -17,7 +18,7 @@
 int resolveFunc(char *func)
 {
     char *funcs[] = {"neg", "abs", "exp", "sqrt", "add", "sub", "mult", "div", "remainder", "log", "pow", "max", "min",
-                     "exp2", "cbrt", "hypot","print","equal","smaller","greater", ""};
+                     "exp2", "cbrt", "hypot","print","equal","smaller","greater","rand", "read", ""};
 
     int i = 0;
     while (funcs[i][0] != '\0')
@@ -168,8 +169,7 @@ AST_NODE *function(char *funcName, AST_NODE *operandList)
     p->scope = NULL;
     p->parent = NULL;
 
-    //append to list
-    p->data.function.opList = operandList;
+
 
 
     //assign the attributes of the node
@@ -186,6 +186,10 @@ AST_NODE *function(char *funcName, AST_NODE *operandList)
         currentOp = currentOp->next;
 
     }
+
+    //append to list
+    p->data.function.opList = operandList;
+
 //    if (op1 != NULL) {
 //        op1->parent = p;
 //        //Check and assign scope from children setScope(child scope, parent)
@@ -209,7 +213,8 @@ AST_NODE *function(char *funcName, AST_NODE *operandList)
 
 AST_NODE* sExprList(AST_NODE* headOfList, AST_NODE* tailList)
 {
-    return (headOfList->next = tailList);
+    headOfList->next = tailList;
+    return headOfList;
 }
 
 //creates a conditional statement
@@ -256,11 +261,14 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
             setScope((falseStatement->scope), conditionalEvaluation);
     }
 
-    AST_NODE *currentConditional = p->data.function.opList;
-    //first element is conditional statement, second element is the true block and third is the false block
-    currentConditional = conditionalEvaluation;
-    currentConditional->next = trueStatement;
-    currentConditional->next = falseStatement;
+    trueStatement->next = falseStatement;
+    conditionalEvaluation->next = trueStatement;
+    p->data.function.opList = conditionalEvaluation;
+//    AST_NODE *currentConditional = p->data.function.opList;
+//    //first element is conditional statement, second element is the true block and third is the false block
+//    currentConditional = conditionalEvaluation;
+//    currentConditional->next = trueStatement;
+//    currentConditional->next->next = falseStatement;
 //    p->data.function.op1 = conditionalEvaluation;
 //    p->data.function.op2 = legs;
 //    legs->data.function.op1 = trueStatement;
@@ -396,7 +404,10 @@ void freeNode(AST_NODE *p)
 RETURN_VALUE eval(AST_NODE *p)
 {
     RETURN_VALUE result;
+    result.value = 0;
     result.type = REAL_TYPE; //assume real by default
+    int operandCount = 0;
+    AST_NODE* currentOperand = p->data.function.opList;
 
     if (!p)
     {
@@ -409,8 +420,9 @@ RETURN_VALUE eval(AST_NODE *p)
     else if(p->type == FUNC_TYPE)
     {
         int temp = resolveFunc(p->data.function.name);
-        AST_NODE* conditionalNode = p->data.function.opList;
-//        AST_NODE* legs = p->data.function.op2;
+        AST_NODE* conditionalStatement = p->data.function.opList;
+        AST_NODE* trueStatement = p->data.function.opList;
+        AST_NODE* falseStatement = p->data.function.opList;
 
         switch (temp)
         {
@@ -427,94 +439,217 @@ RETURN_VALUE eval(AST_NODE *p)
                 result.value = sqrt(eval(p->data.function.opList).value);
                 break;
             case ADD:
-                result.value = eval(p->data.function.op1).value + eval(p->data.function.op2).value;
+
+                //traverse through list and get next operand to calculate
+                while(currentOperand != NULL)
+                {
+                    operandCount++;
+                    result.value += eval(currentOperand).value;
+                    currentOperand = currentOperand->next;
+                }
+                if(operandCount < MINIMUM_BINARY_OPERANDS) //need at least two operands for binary operations
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
                 break;
             case SUB:
-                result.value = eval(p->data.function.op1).value - eval(p->data.function.op2).value;
+                //need a prime read to subtract from first value
+                // i.e. 3-8-4 needs to subtract from 3 first
+                if (currentOperand != NULL) {
+                    result.value = eval(currentOperand).value;
+                    operandCount++;
+                    currentOperand = currentOperand->next;
+                }
+                while(currentOperand != NULL)
+                {
+                    operandCount++;
+                    result.value -= eval(currentOperand).value;
+                    currentOperand = currentOperand->next;
+                }
+                if(operandCount < MINIMUM_BINARY_OPERANDS) //need at least two operands for binary operations
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
                 break;
-            case MULT:
-                result.value = eval(p->data.function.op1).value * eval(p->data.function.op2).value;
+            case MULT://hardcoding values for these functions. Can come back later to allow for 3*8*7*6
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = eval(p->data.function.opList).value * eval(p->data.function.opList->next).value;
                 break;
             case DIV:
-                result.value = eval(p->data.function.op1).value / eval(p->data.function.op2).value;
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = eval(p->data.function.opList).value / eval(p->data.function.opList->next).value;
                 break;
             case REMAINDER:
-                result.value = remainder(eval(p->data.function.op1).value, eval(p->data.function.op2).value);
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = remainder(eval(p->data.function.opList).value, eval(p->data.function.opList->next).value);
                 break;
             case LOG:
                 if (p->data.function.opList->next == NULL) //if we only have one opperandd when we need two
                 {
                     result.value = 0;
-                    printf("ERROR: too few parameters for the function")
+                    printf("ERROR: too few parameters for the function\n");
                 }
-                if (eval(p->data.function.opList).value == 2)
+                else
                 {
-                    result.value = log2(eval(p->data.function.op2).value);
-                } else if (eval(p->data.function.opList).value == 10)
-                {
-                    result.value = log10(eval(p->data.function.op2).value);
+                    AST_NODE* op2 = p->data.function.opList->next; //for readability
+                    switch ((int) eval(p->data.function.opList).value) { //it's either log base 2 or log base 10
+                        case 2:
+                            result.value = log2(eval(op2).value);
+                            break;
+                        case 10:
+                            result.value = log10(eval(op2).value);
+                            break;
+                        default:
+
+                            result.value = 0;
+                            printf("The log base you entered is not supported. Please use base 2 or 10\n");
+                    }
                 }
                 break;
             case POW:
-                result.value = pow(eval(p->data.function.op1).value, eval(p->data.function.op2).value);
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = pow(eval(p->data.function.opList).value, eval(p->data.function.opList->next).value);
                 break;
             case MAX:
-                result.value = fmax(eval(p->data.function.op1).value, eval(p->data.function.op2).value);
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = fmax(eval(p->data.function.opList).value, eval(p->data.function.opList->next).value);
                 break;
             case MIN:
-                result.value = fmin(eval(p->data.function.op1).value, eval(p->data.function.op2).value);
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = fmin(eval(p->data.function.opList).value, eval(p->data.function.opList->next).value);
                 break;
             case EXP2:
-                result.value = exp2(eval(p->data.function.op1).value);
+                if (p->data.function.opList == NULL) //change this to a switch statement within another function later
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = exp2(eval(p->data.function.opList).value);
                 break;
             case CBRT:
-                result.value = cbrt(eval(p->data.function.op1).value);
+                if (p->data.function.opList == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = cbrt(eval(p->data.function.opList).value);
                 break;
             case HYPOT:
-                result.value = hypot(eval(p->data.function.op1).value, eval(p->data.function.op2).value);
+                if (p->data.function.opList->next == NULL)
+                {
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
+                }
+                else
+                    result.value = hypot(eval(p->data.function.opList).value, eval(p->data.function.opList->next).value);
                 break;
             case PRINTOP:
-                result.value = eval(p->data.function.op1).value;
-                printAnswer(eval(p->data.function.op1));
+                //traverse through list and get next operand to print
+                while(currentOperand != NULL)
+                {
+                    result.value = eval(p->data.function.opList).value;
+                    printAnswer(eval(p->data.function.opList));
+                    operandCount++;
+                    currentOperand = currentOperand->next;
+                }
+                //returns final printed value
                 break;
             case EQUALOP:
                 //evaluate conditional statement
-                if(eval(conditionalNode->data.function.op1).value == eval(conditionalNode->data.function.op2).value)
+
+                if (conditionalStatement == NULL || trueStatement == NULL || falseStatement == NULL)
                 {
-                    eval(legs->data.function.op1);
-                    result.value = 1;
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
                 }
                 else {
-                    eval(legs->data.function.op2);
-                    result.value = 0;
+                    if (eval(conditionalStatement).value ==
+                        eval(conditionalStatement->next).value) {
+                        eval(trueStatement);
+                        result.value = 1;
+                    } else {
+                        eval(falseStatement);
+                        result.value = 0;
+                    }
                 }
                 //produce the correct leg
                 break;
             case SMALLER:
-                //evaluate conditional statement
-                if(eval(conditionalNode->data.function.op1).value < eval(conditionalNode->data.function.op2).value)
+                if (conditionalStatement == NULL || trueStatement == NULL || falseStatement == NULL)
                 {
-                    eval(legs->data.function.op1);
-                    result.value = 1;
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
                 }
                 else {
-                    eval(legs->data.function.op2);
-                    result.value = 0;
+                    if (eval(conditionalStatement).value <
+                        eval(conditionalStatement->next).value) {
+                        eval(trueStatement);
+                        result.value = 1;
+                    } else {
+                        eval(falseStatement);
+                        result.value = 0;
+                    }
                 }
                 //produce the correct leg
                 break;
             case LARGER:
-                //evaluate conditional statement
-                if(eval(conditionalNode->data.function.op1).value > eval(conditionalNode->data.function.op2).value)
+                if (conditionalStatement == NULL || trueStatement == NULL || falseStatement == NULL)
                 {
-                    eval(legs->data.function.op1);
-                    result.value = 1;
+                    printf("ERROR: too few parameters for the function <name>\n");
+                    result.value = 0.0;
                 }
                 else {
-                    eval(legs->data.function.op2);
-                    result.value = 0;
+                    if (eval(conditionalStatement).value >
+                        eval(conditionalStatement->next).value) {
+                        eval(trueStatement);
+                        result.value = 1;
+                    } else {
+                        eval(falseStatement);
+                        result.value = 0;
+                    }
                 }
                 //produce the correct leg
+                break;
+            case RAND: //produce a random number
+                result.value = (double)rand()/(double)rand();
+                break;
+            case READ:
+                printf("\n%s = ", p->data.function.opList->data.symbol.name);
+                scanf("%lf",&result.value);
                 break;
             default:
                 exit(-99); //-99 means we did not hit any correct arithmetic functions

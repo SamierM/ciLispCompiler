@@ -42,6 +42,8 @@ typedef enum oper { // must be in sync with funcs in resolveFunc()
     EQUALOP,
     SMALLER,
     LARGER,
+    RAND,
+    READ,
     INVALID_OPER=255
 } OPER_TYPE;
 

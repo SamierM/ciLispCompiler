@@ -51,7 +51,7 @@ s_expr:
 
     }
     | LPAREN FUNC s_expr_list RPAREN {
-        fprintf(stderr, "yacc: LPAREN FUNC expr RPAREN\n");
+        fprintf(stderr, "yacc: LPAREN FUNC s_expr_list RPAREN\n");
         $$ = function($2, $3);
     }
 //    | LPAREN FUNC s_expr s_expr RPAREN {
@@ -75,16 +75,16 @@ s_expr:
     };
 
 s_expr_list:
-{
     s_expr
     {
+        fprintf(stderr, "s_expr\n");
         $$ = $1;
     }
     | s_expr s_expr_list
     {
+        fprintf(stderr, "s_expr s_expr_list\n");
         $$ = sExprList($1, $2);
     };
-};
 
 scope:
         //empty
