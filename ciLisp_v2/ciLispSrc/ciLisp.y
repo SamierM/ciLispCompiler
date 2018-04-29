@@ -115,7 +115,22 @@ let_elem:
     {
     fprintf(stderr, "LPAREN SYMBOL s_expr RPAREN\n");
     $$ = let_elem($2, $3, $4, NULL);
+    }
+    | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
+    {
+       fprintf(stderr, "LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN\n");
     };
+
+arg_list :
+    SYMBOL arg_list
+    {
+    fprintf(stderr, "SYMBOL arg_list\n");
+    }
+    | SYMBOL
+    {
+    fprintf(stderr, "SYMBOL - within arg_list\n");
+    }
+
 
 type:
     INTEGER

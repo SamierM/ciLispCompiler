@@ -581,8 +581,8 @@ RETURN_VALUE eval(AST_NODE *p)
                 //traverse through list and get next operand to print
                 while(currentOperand != NULL)
                 {
-                    result.value = eval(p->data.function.opList).value;
-                    printAnswer(eval(p->data.function.opList));
+                    result.value = eval(currentOperand).value;
+                    printAnswer(eval(currentOperand));
                     operandCount++;
                     currentOperand = currentOperand->next;
                 }
@@ -645,7 +645,7 @@ RETURN_VALUE eval(AST_NODE *p)
                 //produce the correct leg
                 break;
             case RAND: //produce a random number
-                result.value = (double)rand()/(double)rand();
+                result.value = (double)rand() + (double)rand()/(double)rand();
                 break;
             case READ:
                 printf("\n%s = ", p->data.function.opList->data.symbol.name);
