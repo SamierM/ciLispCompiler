@@ -1,0 +1,28 @@
+Notes:
+
+print should return the last s expression print( a b) should return the value of b
+
+op1 and op2 are gone and we have a linked list of operands
+if there are insufficient opperands submit an error and return 0
+if there are too many opperands then just ignore the unnecessary operands
+
+
+//part 6
+implement add subtract mult print
+can come back and add others later
+
+//you were working on the eval functions
+thinking about how to properly get the correct number of operands. 
+need to print errors and warnings for too few and too many respectively
+
+//KNOWN ERRORS
+(mult 3) will correctly produce an error
+if you do correct calculations and do a multiply later like (mult 2) it will return 4.000 for some reason
+
+
+
+(add ((let (abcd 1)) (sub 3 abcd)) 4) 
+(mult ((let (a 1) (b 2)) (add a b)) (sqrt 2)) 
+(add ((let (a ((let (b 2)) (mult b (sqrt 10))))) (div a 2)) ((let (c 5)) (sqrt c))) 
+((let (first (sub 5 1)) (second 2)) (add (pow 2 first) (sqrt second))) 
+((let (real a ((let (real c 3) (integer d 4)) (mult c d)))) (sqrt a))
