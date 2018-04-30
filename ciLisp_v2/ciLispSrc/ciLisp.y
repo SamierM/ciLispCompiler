@@ -111,27 +111,26 @@ let_elem:
     LPAREN type SYMBOL s_expr RPAREN
     {
         fprintf(stderr, "LPAREN SYMBOL s_expr RPAREN\n");
-        $$ = createSymbolNode($2, $3, $4, NULL);
+        $$ = let_elem($2, $3, $4, NULL);
     }
 
     | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
     {
         fprintf(stderr, "LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN\n");
-        $$ = createUserFunction($1, $2);
+        $$ = createUserFunction($2, $3, $6, $8);
     };
 
 arg_list:
     SYMBOL arg_list
     {
         fprintf(stderr, "yacc: SYMBOL arg_list\n");
-        $$ = createSymbolList($1,$2);
+        $$ = createArgumentList($1,$2);
     }
 
     | SYMBOL
     {
         fprintf(stderr, "yacc: SYMBOL --- for an arg_list\n");
-        $$ = createSymbolNode($1); //SYMBOL_TABLE_NODE*
-                                   //let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next)
+        $$ = createArgumentNode($1);
     };
 
 type:

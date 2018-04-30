@@ -55,7 +55,8 @@ extern int yydebug;
     EOL = 265,
     QUIT = 266,
     LET = 267,
-    CONDITIONAL = 268
+    CONDITIONAL = 268,
+    LAMBDA = 269
   };
 #endif
 
@@ -73,7 +74,7 @@ union YYSTYPE
     struct symbol_table_node* symbolNode;
     struct symbol_table_node* scopeNode;
 
-#line 77 "/cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2/cmake-build-debug/ciLispParser.h" /* yacc.c:1909  */
+#line 78 "/cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2/cmake-build-debug/ciLispParser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

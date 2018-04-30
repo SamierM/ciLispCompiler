@@ -102,13 +102,16 @@ AST_NODE *number(double value);
 AST_NODE *function(char *funcName, AST_NODE *operandList);
 AST_NODE *makeSymbol(char *symbolName);
 RETURN_VALUE* makeDataType(char *variableTypeAsString);
+SYMBOL_TABLE_NODE* createUserFunction(RETURN_VALUE* returnValueNode,char* functionName,SYMBOL_TABLE_NODE* argumentList, AST_NODE* functionDefinition);
 
 
 //CREATE MODIFICATIONS TO AST NODES
-SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE* headOfList, SYMBOL_TABLE_NODE* tailOfList);
+SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE *headOfList, SYMBOL_TABLE_NODE* tailOfList);
+SYMBOL_TABLE_NODE *createArgumentList(char* argumentName, SYMBOL_TABLE_NODE *tailOfList);
 AST_NODE* sExprList(AST_NODE* headOfList, AST_NODE* tailList);
 AST_NODE* setScope(SYMBOL_TABLE_NODE* childScope, AST_NODE* parentList);
-SYMBOL_TABLE_NODE *createSymbolNode(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
+SYMBOL_TABLE_NODE *let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
+SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName);
 double roundIntegerFromDouble(AST_NODE *symbolValue, char* symbolName);
 
 

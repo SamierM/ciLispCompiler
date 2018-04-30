@@ -72,6 +72,16 @@ SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE *headOfList, SYMBOL_TABLE_
     return headOfList;
 }
 
+//
+// create a list which is a list of symbols to be assigned to a function
+//
+SYMBOL_TABLE_NODE *createArgumentList(char* argumentName, SYMBOL_TABLE_NODE *tailOfList) {
+    SYMBOL_TABLE_NODE *headOfList = createArgumentNode(argumentName);
+    headOfList->next = tailOfList;
+
+    return headOfList;
+}
+
 /*
  * Similar to the above let list but creates a list of expressions to be used by a function
  */
@@ -85,7 +95,7 @@ AST_NODE *sExprList(AST_NODE *headOfList, AST_NODE *tailList) {
 // assigns a variable a type, a value (which could be an s_expr), and a name. This is where the symbol is created
 //
 SYMBOL_TABLE_NODE*
-createSymbolNode(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next) {
+let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next) {
     SYMBOL_TABLE_NODE *p;
     size_t nodeSize;
 
@@ -100,13 +110,55 @@ createSymbolNode(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbol
     p->val_type = returnValNode->type;
     p->next = next;
     p->val = symbolValue;
+    p->symbol_type = VARIABLE_TYPE;
 
     return p;
 }
 
-SYMBOL_TABLE_NODE* createUserFunction()
-{
+//creates an argument symbol which will be a part of a list and then a part of a user defined function
+//
 
+SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName)
+{
+    SYMBOL_TABLE_NODE *p;
+    size_t nodeSize;
+
+    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    p->ident = argumentName;
+    p->val_type = REAL_TYPE; //assume it is a real by default
+    p->next = NULL;
+    p->val = NULL;
+    p->symbol_type = ARG_TYPE;
+
+    return p;
+}
+
+/*
+ * Function that defines a user function and attaches the argument list to it
+ * The function is represented by a symbol, i.e.: f(x,y) will be a symbol of lambda type which has the necessary features attached
+ *
+ * $$ = createUserFunction($2, $3, $6, $7);
+ *  LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
+ */
+SYMBOL_TABLE_NODE* createUserFunction(RETURN_VALUE* returnValueNode,char* functionName,SYMBOL_TABLE_NODE* argumentList, AST_NODE* functionDefinition)
+{
+    SYMBOL_TABLE_NODE *p;
+    size_t nodeSize;
+
+    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    p->symbol_type = LAMBDA_TYPE;
+    p->val_type = returnValueNode->type;
+    p->ident = functionName;
+    functionDefinition->scope = argumentList;
+    p->val = functionDefinition;
+
+    return p;
 }
 
 /*
@@ -625,7 +677,7 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
         case EQUALOP:
             if (conditionalStatement == NULL || trueStatement == NULL || falseStatement == NULL) {
                 printf("ERROR: too few parameters for the function %s\n", funcs[enumeratedFunctionName]);
-                result.value = 0.0;
+                *resultValue = 0.0;
             }
             break;
         default:

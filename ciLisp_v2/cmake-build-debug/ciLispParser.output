@@ -25,10 +25,14 @@ Grammar
    14         | let_list let_elem
 
    15 let_elem: LPAREN type SYMBOL s_expr RPAREN
+   16         | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
 
-   16 type: INTEGER
-   17     | REAL
-   18     | %empty
+   17 arg_list: SYMBOL arg_list
+   18         | SYMBOL
+
+   19 type: INTEGER
+   20     | REAL
+   21     | %empty
 
 
 Terminals, with rules where they appear
@@ -36,36 +40,39 @@ Terminals, with rules where they appear
 $end (0) 0
 error (256) 8
 FUNC (258) 5
-SYMBOL (259) 4 15
+SYMBOL (259) 4 15 16 17 18
 NUMBER (260) 3
-INTEGER (261) 16
-REAL (262) 17
-LPAREN (263) 5 6 7 12 15
-RPAREN (264) 5 6 7 12 15
+INTEGER (261) 19
+REAL (262) 20
+LPAREN (263) 5 6 7 12 15 16
+RPAREN (264) 5 6 7 12 15 16
 EOL (265) 1
 QUIT (266) 2
 LET (267) 12
 CONDITIONAL (268) 7
+LAMBDA (269) 16
 
 
 Nonterminals, with rules where they appear
 
-$accept (14)
+$accept (15)
     on left: 0
-program (15)
+program (16)
     on left: 1, on right: 0
-s_expr (16)
-    on left: 2 3 4 5 6 7 8, on right: 1 6 7 9 10 15
-s_expr_list (17)
+s_expr (17)
+    on left: 2 3 4 5 6 7 8, on right: 1 6 7 9 10 15 16
+s_expr_list (18)
     on left: 9 10, on right: 5 10
-scope (18)
+scope (19)
     on left: 11 12, on right: 6
-let_list (19)
+let_list (20)
     on left: 13 14, on right: 12 14
-let_elem (20)
-    on left: 15, on right: 13 14
-type (21)
-    on left: 16 17 18, on right: 15
+let_elem (21)
+    on left: 15 16, on right: 13 14
+arg_list (22)
+    on left: 17 18, on right: 16 17
+type (23)
+    on left: 19 20 21, on right: 15 16
 
 
 State 0
@@ -272,11 +279,12 @@ State 20
 State 21
 
    15 let_elem: LPAREN . type SYMBOL s_expr RPAREN
+   16         | LPAREN . type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
 
     INTEGER  shift, and go to state 26
     REAL     shift, and go to state 27
 
-    $default  reduce using rule 18 (type)
+    $default  reduce using rule 21 (type)
 
     type  go to state 28
 
@@ -321,21 +329,22 @@ State 25
 
 State 26
 
-   16 type: INTEGER .
+   19 type: INTEGER .
 
-    $default  reduce using rule 16 (type)
+    $default  reduce using rule 19 (type)
 
 
 State 27
 
-   17 type: REAL .
+   20 type: REAL .
 
-    $default  reduce using rule 17 (type)
+    $default  reduce using rule 20 (type)
 
 
 State 28
 
    15 let_elem: LPAREN type . SYMBOL s_expr RPAREN
+   16         | LPAREN type . SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
 
     SYMBOL  shift, and go to state 32
 
@@ -364,14 +373,16 @@ State 31
 State 32
 
    15 let_elem: LPAREN type SYMBOL . s_expr RPAREN
+   16         | LPAREN type SYMBOL . LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
 
     error   shift, and go to state 1
     SYMBOL  shift, and go to state 2
     NUMBER  shift, and go to state 3
     LPAREN  shift, and go to state 4
     QUIT    shift, and go to state 5
+    LAMBDA  shift, and go to state 34
 
-    s_expr  go to state 34
+    s_expr  go to state 35
 
 
 State 33
@@ -383,13 +394,82 @@ State 33
 
 State 34
 
-   15 let_elem: LPAREN type SYMBOL s_expr . RPAREN
+   16 let_elem: LPAREN type SYMBOL LAMBDA . LPAREN arg_list RPAREN s_expr RPAREN
 
-    RPAREN  shift, and go to state 35
+    LPAREN  shift, and go to state 36
 
 
 State 35
 
+   15 let_elem: LPAREN type SYMBOL s_expr . RPAREN
+
+    RPAREN  shift, and go to state 37
+
+
+State 36
+
+   16 let_elem: LPAREN type SYMBOL LAMBDA LPAREN . arg_list RPAREN s_expr RPAREN
+
+    SYMBOL  shift, and go to state 38
+
+    arg_list  go to state 39
+
+
+State 37
+
    15 let_elem: LPAREN type SYMBOL s_expr RPAREN .
 
     $default  reduce using rule 15 (let_elem)
+
+
+State 38
+
+   17 arg_list: SYMBOL . arg_list
+   18         | SYMBOL .
+
+    SYMBOL  shift, and go to state 38
+
+    $default  reduce using rule 18 (arg_list)
+
+    arg_list  go to state 40
+
+
+State 39
+
+   16 let_elem: LPAREN type SYMBOL LAMBDA LPAREN arg_list . RPAREN s_expr RPAREN
+
+    RPAREN  shift, and go to state 41
+
+
+State 40
+
+   17 arg_list: SYMBOL arg_list .
+
+    $default  reduce using rule 17 (arg_list)
+
+
+State 41
+
+   16 let_elem: LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN . s_expr RPAREN
+
+    error   shift, and go to state 1
+    SYMBOL  shift, and go to state 2
+    NUMBER  shift, and go to state 3
+    LPAREN  shift, and go to state 4
+    QUIT    shift, and go to state 5
+
+    s_expr  go to state 42
+
+
+State 42
+
+   16 let_elem: LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr . RPAREN
+
+    RPAREN  shift, and go to state 43
+
+
+State 43
+
+   16 let_elem: LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN .
+
+    $default  reduce using rule 16 (let_elem)
