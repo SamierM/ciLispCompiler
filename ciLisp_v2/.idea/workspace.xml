@@ -33,11 +33,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ciLisp.c" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ciLisp.c" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-11">
-              <caret line="539" column="58" lean-forward="false" selection-start-line="539" selection-start-column="58" selection-end-line="539" selection-end-column="58" />
+            <state relative-caret-position="0">
+              <caret line="79" column="22" lean-forward="true" selection-start-line="79" selection-start-column="22" selection-end-line="79" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -46,18 +46,18 @@
       <file leaf-file-name="ciLisp.l" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
+            <state relative-caret-position="1092">
+              <caret line="52" column="25" lean-forward="false" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ciLisp.y" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ciLisp.y" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.y">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="777">
-              <caret line="37" column="0" lean-forward="true" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+            <state relative-caret-position="273">
+              <caret line="131" column="62" lean-forward="true" selection-start-line="131" selection-start-column="62" selection-end-line="131" selection-end-column="62" />
               <folding />
             </state>
           </provider>
@@ -66,8 +66,8 @@
       <file leaf-file-name="ciLisp.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="334">
-              <caret line="127" column="6" lean-forward="true" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
+            <state relative-caret-position="1554">
+              <caret line="114" column="14" lean-forward="true" selection-start-line="114" selection-start-column="14" selection-end-line="114" selection-end-column="14" />
               <folding>
                 <element signature="e#116#134#0" expanded="true" />
               </folding>
@@ -93,7 +93,6 @@
       <find>REAL</find>
       <find>evaluateSymbol</find>
       <find>evaluate</find>
-      <find>make</find>
       <find>resolve</find>
       <find>round</find>
       <find>set</find>
@@ -102,6 +101,9 @@
       <find>temp</find>
       <find>validateMinimumNumberOfBinaryOperands</find>
       <find>considerNextOperand(&amp;operandCount, currentOperand);</find>
+      <find>SYM</find>
+      <find>make</find>
+      <find>let_list</find>
     </findStrings>
     <replaceStrings>
       <replace>1</replace>
@@ -121,8 +123,8 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.l" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.y" />
-        <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.h" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.c" />
+        <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.h" />
       </list>
     </option>
   </component>
@@ -133,7 +135,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-8" />
     <option name="width" value="976" />
     <option name="height" value="1038" />
@@ -229,12 +231,12 @@
       <workItem from="1523484095438" duration="23856000" />
       <workItem from="1523926591399" duration="13283000" />
       <workItem from="1524693299969" duration="23369000" />
-      <workItem from="1525039498099" duration="7965000" />
+      <workItem from="1525039498099" duration="15558000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="135838000" />
+    <option name="totallyTimeSpent" value="143431000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -246,10 +248,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.03701745" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.054997355" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293979" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32585597" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32585597" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -277,13 +279,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/ciLispSrc/ciLisp.y</url>
-          <line>33</line>
-          <option name="timeStamp" value="73" />
-        </line-breakpoint>
-      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -566,14 +561,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.y">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="777">
-          <caret line="37" column="0" lean-forward="true" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmake-build-debug/ciLispParser.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="159">
@@ -582,28 +569,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1092">
+          <caret line="52" column="25" lean-forward="false" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="334">
-          <caret line="127" column="6" lean-forward="true" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
+        <state relative-caret-position="1554">
+          <caret line="114" column="14" lean-forward="true" selection-start-line="114" selection-start-column="14" selection-end-line="114" selection-end-column="14" />
           <folding>
             <element signature="e#116#134#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
+    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
+          <caret line="79" column="22" lean-forward="true" selection-start-line="79" selection-start-column="22" selection-end-line="79" selection-end-column="22" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.c">
+    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.y">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-11">
-          <caret line="539" column="58" lean-forward="false" selection-start-line="539" selection-start-column="58" selection-end-line="539" selection-end-column="58" />
+        <state relative-caret-position="273">
+          <caret line="131" column="62" lean-forward="true" selection-start-line="131" selection-start-column="62" selection-end-line="131" selection-end-column="62" />
           <folding />
         </state>
       </provider>

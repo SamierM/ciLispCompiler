@@ -1,28 +1,110 @@
 Notes:
 
-print should return the last s expression print( a b) should return the value of b
 
-op1 and op2 are gone and we have a linked list of operands
-if there are insufficient opperands submit an error and return 0
-if there are too many opperands then just ignore the unnecessary operands
+if there are too many opperands then just ignore the unnecessary operands but if there are too few there must be an error
 
 
-//part 6
-implement add subtract mult print
-can come back and add others later
 
-//you were working on the eval functions
-thinking about how to properly get the correct number of operands. 
-need to print errors and warnings for too few and too many respectively
+//part 7
+Provided the initial grammar structure in bison file
+can Return Lambda token from lexx
+
+//todo
+Modify how symbols are constructed so that the type of symbol can be assigned
+Need to think about how arguments/variables/Lambdas will be assigned and evaluated
+Consider changing when you round numbers to during evaluation
+
 
 //KNOWN ERRORS
-(mult 3) will correctly produce an error
-if you do correct calculations and do a multiply later like (mult 2) it will return 4.000 for some reason
+
+//////
+//ask professor what expected function of read is
+//ask professor what expected output of conditional statements are
+	//currently you just return the value of either the true or false block
 
 
+//test cases
+(add 1 2 3 4)
+(sub 4 3)
+(sub 4 3 11)
+(div 27 3 3)
+(mult 3 3 3)
+(remainder 100 51 6)
+(log 2 8)
+(pow 3 2)
+(max 2 3)
+(min 3 2)
+(print 3 4 5 6 7)
+(rand)
+
+(cond (smaller 3 4) (print 3 4) (print 4 3))
 
 (add ((let (abcd 1)) (sub 3 abcd)) 4) 
 (mult ((let (a 1) (b 2)) (add a b)) (sqrt 2)) 
 (add ((let (a ((let (b 2)) (mult b (sqrt 10))))) (div a 2)) ((let (c 5)) (sqrt c))) 
 ((let (first (sub 5 1)) (second 2)) (add (pow 2 first) (sqrt second))) 
 ((let (real a ((let (real c 3) (integer d 4)) (mult c d)))) (sqrt a))
+
+
+-------------------------------------------------------------------------------------------------------------
+The following grammar expands the capability of ciLisp by adding support for user-defined functions:
+
+program ::= s-expr EOL
+
+s-expr ::= 
+     quit 
+   | number 
+   | symbol 
+   | ( func s_expr_list )
+   | ( scope s_expr )
+   | ( cond s_expr s_expr s_expr )
+
+func ::=
+    neg|abs|exp|sqrt|add|sub|mult|div|remainder|log|pow|max|min|exp2
+    |cbrt|hypot|rand|read|print|equal|smaller|larger
+
+scope ::= <empty> | ( let let_list )
+
+let_list ::= let_elem | let_list let_elem 
+
+let_elem ::= 
+   ( type symbol s_expr )
+   | ( type symbol lambda ( arg_list ) s_expr )
+
+type ::= <empty> | integer | real
+
+arg_list ::= symbol arg_list | symbol
+
+number ::= digit+ [ . digit+ ] 
+symbol ::= letter+ 
+
+letter ::= [a-zA-Z]
+digit ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+Function definitions should be placed in the let section. A function should have have a positive number of formal arguments (symbols). The body of the function is an expression that may use formal parameters. For example:
+
+((let (real myFunc lambda (x y) (mult (add x 5) (sub y 2)))) (sub (myFunc 3 5) 2))
+
+Similarly to the use of let and cond, the lambda keyword should be used just for parsing.
+
+As shown, a function must be called with the number of actual parameters that comply with the arity rules described in the previous task for lists of function parameters. The same erros and warnings should be issues as needed.
+
+The value of the expression that is the body of the function is the value that the function returns.
+
+Formal parameters have type ARG_TYPE and have NULL as values. For example, in the tree for
+
+(((lambda f (x y) (add x y)))(f (sub 5 2) (mult 2 3))
+
+x and y are symbols in the scope of add with type ARG_TYPE, and with x.val=NULL and y.val=NULL. When the evaluator processes (f 1 2), this function will set the x.val to root of the tree for (sub 5 2) and y.val to the root of the tree for (mult 2 3); that is equivalent to pushing the actual parameters (pointers to the roots) on a stack. After the substitutions, both formal parameters have individual stacks with the pointers to the roots of the corresponding s-expression trees, so (add x y) can be evaluated. After the evaluation, the pointers x.val and y.val are set back to NULL. This is like popping up the parameters from the stack.
+
+This task needs some modifications and extra definitions to the list of symbols in a scope:
+
+typedef enum { VARIABLE_TYPE, LAMBDA_TYPE, ARG_TYPE } SYMBOL_TYPE;
+
+typedef struct symbol_table_node {
+   SYMBOL_TYPE type;
+   DATA_TYPE val_type;
+   char *ident;
+   struct ast_node *val;
+   struct symbol_table_node *next;
+} SYMBOL_TABLE_NODE;

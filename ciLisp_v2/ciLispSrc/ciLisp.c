@@ -62,9 +62,9 @@ void checkForDuplicateSymbols(SYMBOL_TABLE_NODE *list1, SYMBOL_TABLE_NODE *list2
 }
 
 //
-// create let list which is a list of symbols to be assigned to a function
+// create a list which is a list of symbols to be assigned to a function
 //
-SYMBOL_TABLE_NODE *let_list(SYMBOL_TABLE_NODE *headOfList, SYMBOL_TABLE_NODE *tailOfList) {
+SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE *headOfList, SYMBOL_TABLE_NODE *tailOfList) {
     //make a check potentially? for doubles will think about why I need double check later
     //i.e. let a 2 and let a 3 how to handle this
     headOfList->next = tailOfList;
@@ -84,8 +84,8 @@ AST_NODE *sExprList(AST_NODE *headOfList, AST_NODE *tailList) {
 // create let element
 // assigns a variable a type, a value (which could be an s_expr), and a name. This is where the symbol is created
 //
-SYMBOL_TABLE_NODE *
-let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next) {
+SYMBOL_TABLE_NODE*
+createSymbolNode(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next) {
     SYMBOL_TABLE_NODE *p;
     size_t nodeSize;
 
@@ -93,11 +93,8 @@ let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, S
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    if (returnValNode->type == INTEGER_TYPE)
-        symbolValue->data.number.value = roundIntegerFromDouble(symbolValue,
-                                                                symbolName); //will change the value inside actual node
-
-
+    if (returnValNode->type == INTEGER_TYPE)//will change the value inside actual node
+        symbolValue->data.number.value = roundIntegerFromDouble(symbolValue, symbolName);
 
     p->ident = symbolName;
     p->val_type = returnValNode->type;
@@ -105,6 +102,11 @@ let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, S
     p->val = symbolValue;
 
     return p;
+}
+
+SYMBOL_TABLE_NODE* createUserFunction()
+{
+
 }
 
 /*

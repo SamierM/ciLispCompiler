@@ -51,8 +51,10 @@ typedef enum {
     NUM_TYPE, FUNC_TYPE, SYMBOL_TYPE
 } AST_NODE_TYPE;
 
-//boolean data types will return 1 for true and 0 for false
+
 typedef enum { NO_TYPE, INTEGER_TYPE, REAL_TYPE} DATA_TYPE;
+
+typedef enum { VARIABLE_TYPE, LAMBDA_TYPE, ARG_TYPE } TYPE_OF_SYMBOL;
 
 typedef struct return_value {
     DATA_TYPE type;
@@ -66,8 +68,6 @@ typedef struct {
 typedef struct {
     char *name;
     struct ast_node* opList;
-//    struct ast_node *op1;
-//    struct ast_node *op2;
 } FUNCTION_AST_NODE;
 
 
@@ -77,6 +77,7 @@ typedef struct symbol_ast_node {
 
 
 typedef struct symbol_table_node {
+    TYPE_OF_SYMBOL symbol_type;
     DATA_TYPE val_type;
     char *ident;
     struct ast_node *val;
@@ -104,10 +105,10 @@ RETURN_VALUE* makeDataType(char *variableTypeAsString);
 
 
 //CREATE MODIFICATIONS TO AST NODES
-SYMBOL_TABLE_NODE *let_list(SYMBOL_TABLE_NODE* headOfList, SYMBOL_TABLE_NODE* tailOfList);
+SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE* headOfList, SYMBOL_TABLE_NODE* tailOfList);
 AST_NODE* sExprList(AST_NODE* headOfList, AST_NODE* tailList);
 AST_NODE* setScope(SYMBOL_TABLE_NODE* childScope, AST_NODE* parentList);
-SYMBOL_TABLE_NODE *let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
+SYMBOL_TABLE_NODE *createSymbolNode(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
 double roundIntegerFromDouble(AST_NODE *symbolValue, char* symbolName);
 
 

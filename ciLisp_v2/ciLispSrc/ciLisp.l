@@ -46,6 +46,14 @@ symbol {letter}+
             return CONDITIONAL;
         }
 
+"lambda" {
+            yylval.sval = (char *) malloc(strlen(yytext)*sizeof(char));
+            strcpy(yylval.sval, yytext);
+            fprintf(stderr, "lex: LAMBDA \n");
+            return LAMBDA;
+
+         }
+
 "quit" {
     return QUIT;
     }

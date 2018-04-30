@@ -16,13 +16,14 @@
 %token <dval> NUMBER
 %token <sval> INTEGER
 %token <sval> REAL
-%token LPAREN RPAREN EOL QUIT LET CONDITIONAL
+%token LPAREN RPAREN EOL QUIT LET CONDITIONAL LAMBDA
 
 %type <astNode> s_expr
 %type <astNode> s_expr_list
 %type <symbolNode> let_elem
 %type <symbolNode> let_list
-%type <scopeNode> scope
+%type <symbolNode> arg_list
+%type <symbolNode> scope
 %type <returnNode> type
 
 %%
@@ -37,7 +38,7 @@ program:
     };
 
 s_expr:
-        QUIT {
+    QUIT {
         fprintf(stderr, "QUIT\n");
         exit(0);
     }
@@ -83,10 +84,10 @@ s_expr_list:
     };
 
 scope:
-        //empty
-        {
-            $$ = NULL;
-        };
+    //empty
+    {
+        $$ = NULL;
+    }
 
     | LPAREN LET let_list RPAREN
     {
@@ -96,21 +97,41 @@ scope:
 
 let_list:
     let_elem {
-    fprintf(stderr,"let_elem\n");
-    $$ = $1;
+        fprintf(stderr,"let_elem\n");
+        $$ = $1;
     }
 
     | let_list let_elem
     {
-    fprintf(stderr, "let_list let_elem\n");
-    $$ = let_list($1, $2);
+        fprintf(stderr, "let_list let_elem\n");
+        $$ = createSymbolList($1, $2);
     };
 
 let_elem:
     LPAREN type SYMBOL s_expr RPAREN
     {
-    fprintf(stderr, "LPAREN SYMBOL s_expr RPAREN\n");
-    $$ = let_elem($2, $3, $4, NULL);
+        fprintf(stderr, "LPAREN SYMBOL s_expr RPAREN\n");
+        $$ = createSymbolNode($2, $3, $4, NULL);
+    }
+
+    | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
+    {
+        fprintf(stderr, "LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN\n");
+        $$ = createUserFunction($1, $2);
+    };
+
+arg_list:
+    SYMBOL arg_list
+    {
+        fprintf(stderr, "yacc: SYMBOL arg_list\n");
+        $$ = createSymbolList($1,$2);
+    }
+
+    | SYMBOL
+    {
+        fprintf(stderr, "yacc: SYMBOL --- for an arg_list\n");
+        $$ = createSymbolNode($1); //SYMBOL_TABLE_NODE*
+                                   //let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next)
     };
 
 type:
@@ -118,15 +139,15 @@ type:
     {
         fprintf(stderr, "INTEGER\n");
         $$ = makeDataType($1);
-    };
+    }
     | REAL
     {
         fprintf(stderr, "REAL\n");
         $$ = makeDataType($1);
-    };
+    }
     |//empty
     {
-    $$ = makeDataType(NULL);
+        $$ = makeDataType(NULL);
     };
 
 %%
