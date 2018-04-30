@@ -444,8 +444,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    31,    31,    40,    44,    48,    53,    61,    66,    71,
-      78,    83,    91,    95,   102,   107,   114,   121,   126,   132
+       0,    31,    31,    40,    44,    48,    53,    57,    62,    67,
+      74,    79,    87,    91,    98,   103,   110,   117,   122,   128
 };
 #endif
 
@@ -1280,7 +1280,7 @@ yyreduce:
     break;
 
   case 7:
-#line 62 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 58 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "LPAREN scope s_expr RPAREN\n");
         (yyval.astNode) = setScope((yyvsp[-2].scopeNode),(yyvsp[-1].astNode));
@@ -1289,7 +1289,7 @@ yyreduce:
     break;
 
   case 8:
-#line 67 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 63 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "LPAREN CONDITIONAL s_expr s_expr s_expr RPAREN\n");
         (yyval.astNode) = conditional((yyvsp[-3].astNode),(yyvsp[-2].astNode),(yyvsp[-1].astNode));
@@ -1298,7 +1298,7 @@ yyreduce:
     break;
 
   case 9:
-#line 71 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 67 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "yacc: s_expr ::= error\n");
         yyerror("unexpected token");
@@ -1308,7 +1308,7 @@ yyreduce:
     break;
 
   case 10:
-#line 79 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 75 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "s_expr\n");
         (yyval.astNode) = (yyvsp[0].astNode);
@@ -1317,7 +1317,7 @@ yyreduce:
     break;
 
   case 11:
-#line 84 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 80 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "s_expr s_expr_list\n");
         (yyval.astNode) = sExprList((yyvsp[-1].astNode), (yyvsp[0].astNode));
@@ -1326,7 +1326,7 @@ yyreduce:
     break;
 
   case 12:
-#line 91 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 87 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
             (yyval.scopeNode) = NULL;
         }
@@ -1334,7 +1334,7 @@ yyreduce:
     break;
 
   case 13:
-#line 96 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 92 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "LPAREN LET let_list RPAREN\n");
         (yyval.scopeNode) = (yyvsp[-1].symbolNode); //Just to return the list to the higher level. May be unnecessary, but useful currently to visualize structure
@@ -1343,7 +1343,7 @@ yyreduce:
     break;
 
   case 14:
-#line 102 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 98 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
     fprintf(stderr,"let_elem\n");
     (yyval.symbolNode) = (yyvsp[0].symbolNode);
@@ -1352,7 +1352,7 @@ yyreduce:
     break;
 
   case 15:
-#line 108 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 104 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
     fprintf(stderr, "let_list let_elem\n");
     (yyval.symbolNode) = let_list((yyvsp[-1].symbolNode), (yyvsp[0].symbolNode));
@@ -1361,7 +1361,7 @@ yyreduce:
     break;
 
   case 16:
-#line 115 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 111 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
     fprintf(stderr, "LPAREN SYMBOL s_expr RPAREN\n");
     (yyval.symbolNode) = let_elem((yyvsp[-3].returnNode), (yyvsp[-2].sval), (yyvsp[-1].astNode), NULL);
@@ -1370,7 +1370,7 @@ yyreduce:
     break;
 
   case 17:
-#line 122 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 118 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "INTEGER\n");
         (yyval.returnNode) = makeDataType((yyvsp[0].sval));
@@ -1379,7 +1379,7 @@ yyreduce:
     break;
 
   case 18:
-#line 127 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 123 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
         fprintf(stderr, "REAL\n");
         (yyval.returnNode) = makeDataType((yyvsp[0].sval));
@@ -1388,7 +1388,7 @@ yyreduce:
     break;
 
   case 19:
-#line 132 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
+#line 128 "ciLispSrc/ciLisp.y" /* yacc.c:1646  */
     {
     (yyval.returnNode) = makeDataType(NULL);
     }
@@ -1624,6 +1624,6 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 136 "ciLispSrc/ciLisp.y" /* yacc.c:1906  */
+#line 132 "ciLispSrc/ciLisp.y" /* yacc.c:1906  */
 
 

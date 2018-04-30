@@ -54,10 +54,6 @@ s_expr:
         fprintf(stderr, "yacc: LPAREN FUNC s_expr_list RPAREN\n");
         $$ = function($2, $3);
     }
-//    | LPAREN FUNC s_expr s_expr RPAREN {
-//        fprintf(stderr, "LPAREN FUNC expr expr RPAREN\n");
-//        $$ = function($2, $3, $4);
-//    }
     | LPAREN scope s_expr RPAREN
     {
         fprintf(stderr, "LPAREN scope s_expr RPAREN\n");

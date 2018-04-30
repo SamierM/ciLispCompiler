@@ -120,7 +120,9 @@ void checkForDuplicateSymbols(SYMBOL_TABLE_NODE* list1, SYMBOL_TABLE_NODE* list2
 void printAnswer(RETURN_VALUE valueToPrint);
 AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, AST_NODE *falseStatement);
 
-
+//Auxillary Functions for EVAL
+int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, int enumeratedFunctionName, AST_NODE* functionThatContainsOperandList);
+void considerNextOperand(int *operandCount, AST_NODE **currentOperand);
 
 
 #endif
