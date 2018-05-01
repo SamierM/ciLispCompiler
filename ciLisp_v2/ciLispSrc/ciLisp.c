@@ -293,48 +293,6 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
 
 }
 
-//
-// Evaluate the symbol by checking the parent's scope for its unique value
-//
-SYMBOL_TABLE_NODE *evaluateSymbol(AST_NODE *symbolNodeToEvaluate) {
-
-    AST_NODE *currentParent = symbolNodeToEvaluate; //we may not find the symbol in this scope and need to go to a higher level. This is how we go to higher levels
-    SYMBOL_TABLE_NODE *currentSymbol = currentParent->scope; //this is the placeholder to go through the list of symbols to match to the variable
-
-    //this is the name of the variable we are looking for. i.e. int a = ?. In this the name refers to a
-    char *variableToCheckName = symbolNodeToEvaluate->data.symbol.name;
-
-
-    //traverse upwards to top parent node for the symbol
-    do {
-        currentSymbol = currentParent->scope;
-        while (currentSymbol !=
-               NULL) { //traverses through the list associated with the current parent before moving to the higher level
-            if (strcmp(currentSymbol->ident, variableToCheckName) == 0) //found correct symbol in list
-            {
-                if (currentSymbol->val->type != SYMBOL_TYPE) {
-                    return currentSymbol;//we found the correct symbol with its associated value
-                } else { //update to new symbol to check for
-
-                    //this is the case where a = b. So now we have found the value of a which is b. So we must update name to b and begin to look for that
-                    variableToCheckName = (currentSymbol->val->data.symbol.name);
-                    //this is the new nested symbol we are looking for
-
-                    currentSymbol = NULL; //force going to a higher parent level
-                }
-                //if it is a symbol we need to process it more by going to the parent
-            } else { currentSymbol = currentSymbol->next; }
-        }
-        //went through the entire scope and need to go to higher parent level
-        currentParent = currentParent->parent;
-
-    } while (currentParent != NULL);
-
-    yyerror("\nThe symbol does not exist in this scope!");
-    return NULL; //for error checking
-
-}
-
 
 /*
  * Creation of Symbol AST NODE (NOT TO BE CONFUSED WITH THE SYMBOL LIST WHICH HOLDS THESE ELEMENTS)
@@ -609,10 +567,22 @@ RETURN_VALUE eval(AST_NODE *p) {
                 exit(-99); //-99 means we did not hit any correct arithmetic functions
         }
     } else if (p->type == SYMBOL_TYPE) {
-        SYMBOL_TABLE_NODE *tableWithAllInformation = evaluateSymbol(p); //&(p->scope);//
+        SYMBOL_TABLE_NODE *tableWithAllInformation = evaluateSymbol(p);
 
-        result.value = eval(tableWithAllInformation->val).value;
-        result.type = tableWithAllInformation->val_type;
+        switch (tableWithAllInformation->symbol_type) {
+            case VARIABLE_TYPE:
+                //tableWithAllInformation = evaluateSymbol(p);
+                result.value = eval(tableWithAllInformation->val).value;
+                result.type = tableWithAllInformation->val_type;
+                break;
+            case ARG_TYPE:
+                break;
+            case LAMBDA_TYPE:
+                //evaluate lambda definition by traversing through arguments
+                result = evaluateLambdaSymbol(p);
+                break;
+        }
+
     }
 
     return result;
@@ -694,4 +664,75 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
 void considerNextOperand(int *operandCount, AST_NODE **currentOperand) {
     (*operandCount)++;
     *currentOperand = (*currentOperand)->next;
+}
+
+//
+// Evaluate the symbol by checking the parent's scope for its unique value
+//
+SYMBOL_TABLE_NODE *evaluateSymbol(AST_NODE *symbolNodeToEvaluate) {
+
+    AST_NODE *currentParent = symbolNodeToEvaluate; //we may not find the symbol in this scope and need to go to a higher level. This is how we go to higher levels
+    SYMBOL_TABLE_NODE *currentSymbol = currentParent->scope; //this is the placeholder to go through the list of symbols to match to the variable
+
+    //this is the name of the variable we are looking for. i.e. int a = ?. In this the name refers to a
+    char *variableToCheckName = symbolNodeToEvaluate->data.symbol.name;
+
+
+    //traverse upwards to top parent node for the symbol
+    do {
+        currentSymbol = currentParent->scope;
+        while (currentSymbol !=
+               NULL) { //traverses through the list associated with the current parent before moving to the higher level
+            if (strcmp(currentSymbol->ident, variableToCheckName) == 0) //found correct symbol in list
+            {
+                if (currentSymbol->val->type != SYMBOL_TYPE) {
+                    return currentSymbol;//we found the correct symbol with its associated value
+                } else { //update to new symbol to check for
+
+                    //this is the case where a = b. So now we have found the value of a which is b. So we must update name to b and begin to look for that
+                    variableToCheckName = (currentSymbol->val->data.symbol.name);
+                    //this is the new nested symbol we are looking for
+
+                    currentSymbol = NULL; //force going to a higher parent level
+                }
+                //if it is a symbol we need to process it more by going to the parent
+            } else { currentSymbol = currentSymbol->next; }
+        }
+        //went through the entire scope and need to go to higher parent level
+        currentParent = currentParent->parent;
+
+    } while (currentParent != NULL);
+
+    yyerror("\nThe symbol does not exist in this scope!");
+    return NULL; //for error checking
+
+}
+
+//evaluate lambda definition by traversing through arguments
+//userFunctionToEvaluate is the tree with node which has the user defined function
+RETURN_VALUE evaluateLambdaSymbol(AST_NODE* uFunctionToEvaluate)
+{
+    //first we must find where the function is located within the proper scope
+    SYMBOL_TABLE_NODE *userFunctionDefinition = evaluateSymbol(uFunctionToEvaluate); //this stores the predefined function with NULLed arguments
+    //SYMBOL_TABLE_NODE *formalArgumentList = userFunctionDefinition->val->scope;
+    SYMBOL_TABLE_NODE *currentFormalArgument = userFunctionDefinition->val->scope;
+    AST_NODE *currentActualArgument = uFunctionToEvaluate->data.function.opList;
+    RETURN_VALUE evaluatedFunction;
+
+    while(currentFormalArgument != NULL) //assign values to currently NULLed formal parameters
+    {
+        if (currentActualArgument == NULL)
+        {
+            printf("ERROR: too few parameters for the function %s\n", uFunctionToEvaluate->data.function.name);
+            exit(-2);
+        }
+
+        currentFormalArgument->val = currentActualArgument;
+        //update parameters to traverse
+        currentFormalArgument = currentFormalArgument->next;
+        currentActualArgument = currentActualArgument->next;
+    }
+    evaluatedFunction = eval(userFunctionDefinition->val);
+
+    return evaluatedFunction;
 }

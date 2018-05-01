@@ -120,6 +120,7 @@ void freeNode(AST_NODE *p);
 //process made nodes
 RETURN_VALUE eval(AST_NODE *ast);
 SYMBOL_TABLE_NODE* evaluateSymbol(AST_NODE* symbolNodeToEvaluate);
+RETURN_VALUE evaluateLambdaSymbol(AST_NODE* uFunctionToEvaluate);
 void checkForDuplicateSymbols(SYMBOL_TABLE_NODE* list1, SYMBOL_TABLE_NODE* list2);
 void printAnswer(RETURN_VALUE valueToPrint);
 AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, AST_NODE *falseStatement);
