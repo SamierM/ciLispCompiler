@@ -47,7 +47,7 @@ s_expr:
         $$ = number($1);
     }
     | SYMBOL {
-        fprintf(stderr, "yacc: SYMBOL\n");
+        fprintf(stderr, "yacc: SYMBOL %s\n", $1);
         $$ = makeSymbol($1);
 
     }
@@ -65,11 +65,16 @@ s_expr:
         fprintf(stderr, "LPAREN CONDITIONAL s_expr s_expr s_expr RPAREN\n");
         $$ = conditional($3,$4,$5);
     }
+    | LPAREN SYMBOL s_expr_list RPAREN
+    {
+        $$ = callToUserFunction($2,$3);
+    }
     | error {
         fprintf(stderr, "yacc: s_expr ::= error\n");
         yyerror("unexpected token");
         $$ = NULL;
     };
+
 
 s_expr_list:
     s_expr
@@ -114,7 +119,7 @@ let_elem:
         $$ = let_elem($2, $3, $4, NULL);
     }
 
-    | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
+    | LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN
     {
         fprintf(stderr, "LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN\n");
         $$ = createUserFunction($2, $3, $6, $8);

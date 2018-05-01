@@ -128,6 +128,7 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
 //Auxillary Functions for EVAL
 int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, int enumeratedFunctionName, AST_NODE* functionThatContainsOperandList);
 void considerNextOperand(int *operandCount, AST_NODE **currentOperand);
+AST_NODE* callToUserFunction(char* userFunctionName,AST_NODE* actualParameters);
 
 
 #endif

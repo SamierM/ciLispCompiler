@@ -1,7 +1,7 @@
 /**
  *
  * Name: Samier Mahagna
- * Lab/Task: Lab 9 Task 4
+ * Lab/Task: Lab 9 Task 7
  *
  */
 
@@ -159,6 +159,18 @@ SYMBOL_TABLE_NODE* createUserFunction(RETURN_VALUE* returnValueNode,char* functi
     p->val = functionDefinition;
 
     return p;
+}
+
+/*
+ * Takes a symbol which needs to be converted into a ASTNODE so that it can be sent to the evaluator
+ */
+AST_NODE* callToUserFunction(char* userFunctionName,AST_NODE* actualParameters)
+{
+
+    AST_NODE* constructedLambdaCall = function(userFunctionName,actualParameters); //create a new AST node which we will return after constructing the appropriate function node
+    constructedLambdaCall->type = SYMBOL_TYPE; //we do this so that when we get to the evaluator we will process this correctly
+    return constructedLambdaCall;
+
 }
 
 /*
@@ -571,14 +583,18 @@ RETURN_VALUE eval(AST_NODE *p) {
 
         switch (tableWithAllInformation->symbol_type) {
             case VARIABLE_TYPE:
-                //tableWithAllInformation = evaluateSymbol(p);
+//                tableWithAllInformation = evaluateSymbol(p);
+//                //tableWithAllInformation = evaluateSymbol(p);
+//                result.value = eval(tableWithAllInformation->val).value;
+//                result.type = tableWithAllInformation->val_type;
+//                break;
+            case ARG_TYPE:
                 result.value = eval(tableWithAllInformation->val).value;
                 result.type = tableWithAllInformation->val_type;
                 break;
-            case ARG_TYPE:
-                break;
             case LAMBDA_TYPE:
                 //evaluate lambda definition by traversing through arguments
+                tableWithAllInformation = evaluateSymbol(makeSymbol(p->data.function.name));  //we need to force our eval to find the correct symbol
                 result = evaluateLambdaSymbol(p);
                 break;
         }
@@ -600,9 +616,9 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
                      "exp2", "cbrt", "hypot", "print", "equal", "smaller", "greater", "rand", "read", ""};
 
     //for readability
-    AST_NODE *conditionalStatement = functionThatContainsOperandList->data.function.opList;
-    AST_NODE *trueStatement = functionThatContainsOperandList->data.function.opList;
-    AST_NODE *falseStatement = functionThatContainsOperandList->data.function.opList;
+//    AST_NODE *conditionalStatement = functionThatContainsOperandList->data.function.opList;
+//    AST_NODE *trueStatement = functionThatContainsOperandList->data.function.opList;
+//    AST_NODE *falseStatement = functionThatContainsOperandList->data.function.opList;
 
     switch (enumeratedFunctionName) {
         //SINGLEOPERANDS
@@ -645,7 +661,9 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
         case SMALLER:
         case LARGER:
         case EQUALOP:
-            if (conditionalStatement == NULL || trueStatement == NULL || falseStatement == NULL) {
+            if (functionThatContainsOperandList->data.function.opList == NULL ||
+                    functionThatContainsOperandList->data.function.opList == NULL ||
+                    functionThatContainsOperandList->data.function.opList == NULL) {
                 printf("ERROR: too few parameters for the function %s\n", funcs[enumeratedFunctionName]);
                 *resultValue = 0.0;
             }
