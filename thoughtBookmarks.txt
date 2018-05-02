@@ -10,17 +10,17 @@ Provided the initial grammar structure in bison file
 can Return Lambda token from lexx
 
 //todo
-Modify how symbols are constructed so that the type of symbol can be assigned
 Need to think about how arguments/variables/Lambdas will be assigned and evaluated
 Consider changing when you round numbers to during evaluation
-
+	consider taking the entire body of the function and using a copy of it at each level of the recursion
+	think about it in the same way that you solve let list elements
 
 //KNOWN ERRORS
 
 //////
 //ask professor what expected function of read is
-//ask professor what expected output of conditional statements are
-	//currently you just return the value of either the true or false block
+	-Does 
+
 
 
 //test cases
@@ -44,8 +44,17 @@ Consider changing when you round numbers to during evaluation
 (add ((let (a ((let (b 2)) (mult b (sqrt 10))))) (div a 2)) ((let (c 5)) (sqrt c))) 
 ((let (first (sub 5 1)) (second 2)) (add (pow 2 first) (sqrt second))) 
 ((let (real a ((let (real c 3) (integer d 4)) (mult c d)))) (sqrt a))
+((let f lambda (x y) (add x y)) (f 1 2))
+((let(f lambda (x y) (add x y)))(f (sub 5 2) (mult 2 3)))
+((let (real myFunc lambda (x y) (mult (add x 5) (sub y 2)))) (sub (myFunc 3 5) 2)))
 
 
+ user_function_call
+    {
+        fprintf(stderr, "yacc: LPAREN SYMBOL s_expr_list RPAREN --- Evaluating a user defined func\n");
+        $$ = $1;
+    }
+    
 -------------------------------------------------------------------------------------------------------------
 The following grammar expands the capability of ciLisp by adding support for user-defined functions:
 
