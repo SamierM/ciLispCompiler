@@ -426,7 +426,7 @@ void popEvaluatedStackElement( SYMB_VAL_STACK_ELEMENT* bottomOfStack)
         }
         currentElementOnStack = currentElementOnStack->next;
     }
-    free(currentElementOnStack);
+    //free(currentElementOnStack);
     previousElementOnStack->next = NULL;
 }
 
@@ -805,7 +805,7 @@ RETURN_VALUE evaluateLambdaSymbol(AST_NODE *uFunctionToEvaluate) {
         }
 
 //        currentFormalArgument->val = currentActualArgument; //instead of this we will push items on the stack to be evaluated recursively
-        createNewStackElement(currentFormalArgument,currentActualArgument)  ;
+        createNewStackElement(currentFormalArgument,currentActualArgument);
         //update parameters to traverse
         currentFormalArgument = currentFormalArgument->next;
         currentActualArgument = currentActualArgument->next;
