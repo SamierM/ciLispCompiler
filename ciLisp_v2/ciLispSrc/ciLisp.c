@@ -103,9 +103,10 @@ let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, S
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    if (returnValNode->type == INTEGER_TYPE)//will change the value inside actual node
-        symbolValue->data.number.value = roundIntegerFromDouble(symbolValue, symbolName);
+//    if (returnValNode->type == INTEGER_TYPE)//will change the value inside actual node
+//        symbolValue->data.number.value = roundIntegerFromDouble(symbolValue, symbolName);
 
+    symbolValue->parent = makeSymbol(symbolName);
     p->ident = symbolName;
     p->val_type = returnValNode->type;
     p->next = next;
@@ -587,7 +588,8 @@ RETURN_VALUE eval(AST_NODE *p) {
                 //traverse through list and get next operand to print
                 while (currentOperand != NULL) {
                     result.value = eval(currentOperand).value;
-                    printAnswer(eval(currentOperand));
+//                    printAnswer(eval(currentOperand));
+                    printAnswer(result);
                     considerNextOperand(&operandCount, &currentOperand);
                 }
                 //returns final printed value
@@ -623,7 +625,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 result.value = (double) rand() / (double) rand();
                 break;
             case READ:
-                printf("\n%s = ", p->data.function.opList->data.symbol.name);
+                printf("\nread %s := ", p->parent->data.symbol.name);
                 scanf("%lf", &result.value);
                 break;
             default:

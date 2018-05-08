@@ -46,6 +46,8 @@ Consider changing when you round numbers to during evaluation
 ((let (real a ((let (real c 3) (integer d 4)) (mult c d)))) (sqrt a))
 ((let f lambda (x y) (add x y)) (f 1 2))
 ((let(f lambda (x y) (add x y)))(f (sub 5 2) (mult 2 3)))
+((let(f lambda (x y) (add x y)))(f (f (5 2) 2) (mult 2 3)))
+((let (a 1) (f lambda (x y) (add x y)))(f 1 (f 2 3)))
 ((let (real myFunc lambda (x y) (mult (add x 5) (sub y 2)))) (sub (myFunc 3 5) 2)))
 
 
