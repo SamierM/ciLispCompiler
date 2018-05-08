@@ -82,7 +82,13 @@ typedef struct symbol_table_node {
     char *ident;
     struct ast_node *val;
     struct symbol_table_node *next;
+    struct symbol_value_stack *stack;
 } SYMBOL_TABLE_NODE;
+
+typedef struct symbol_value_stack {
+    struct symbol_value_stack* next;
+    struct ast_node *valueOnStack;
+}SYMB_VAL_STACK_ELEMENT;
 
 
 typedef struct ast_node {
@@ -113,6 +119,7 @@ AST_NODE* setScope(SYMBOL_TABLE_NODE* childScope, AST_NODE* parentList);
 SYMBOL_TABLE_NODE *let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
 SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName);
 double roundIntegerFromDouble(AST_NODE *symbolValue, char* symbolName);
+SYMB_VAL_STACK_ELEMENT* createNewStackElement(SYMBOL_TABLE_NODE* formalParameter, AST_NODE* actualParameter);
 
 
 void freeNode(AST_NODE *p);
@@ -129,6 +136,7 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
 int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, int enumeratedFunctionName, AST_NODE* functionThatContainsOperandList);
 void considerNextOperand(int *operandCount, AST_NODE **currentOperand);
 AST_NODE* callToUserFunction(char* userFunctionName,AST_NODE* actualParameters);
+SYMB_VAL_STACK_ELEMENT* getTopOfStack(SYMBOL_TABLE_NODE* symbolVariableWithStack);
 
 
 #endif

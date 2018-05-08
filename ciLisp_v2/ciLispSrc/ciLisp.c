@@ -75,7 +75,7 @@ SYMBOL_TABLE_NODE *createSymbolList(SYMBOL_TABLE_NODE *headOfList, SYMBOL_TABLE_
 //
 // create a list which is a list of symbols to be assigned to a function
 //
-SYMBOL_TABLE_NODE *createArgumentList(char* argumentName, SYMBOL_TABLE_NODE *tailOfList) {
+SYMBOL_TABLE_NODE *createArgumentList(char *argumentName, SYMBOL_TABLE_NODE *tailOfList) {
     SYMBOL_TABLE_NODE *headOfList = createArgumentNode(argumentName);
     headOfList->next = tailOfList;
 
@@ -94,7 +94,7 @@ AST_NODE *sExprList(AST_NODE *headOfList, AST_NODE *tailList) {
 // create let element
 // assigns a variable a type, a value (which could be an s_expr), and a name. This is where the symbol is created
 //
-SYMBOL_TABLE_NODE*
+SYMBOL_TABLE_NODE *
 let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next) {
     SYMBOL_TABLE_NODE *p;
     size_t nodeSize;
@@ -118,19 +118,17 @@ let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, S
 //creates an argument symbol which will be a part of a list and then a part of a user defined function
 //
 
-SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName)
-{
+SYMBOL_TABLE_NODE *createArgumentNode(char *argumentName) {
     SYMBOL_TABLE_NODE *p;
     size_t nodeSize;
 
-    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE);
+    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE) + sizeof(SYMB_VAL_STACK_ELEMENT);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
     p->ident = argumentName;
     p->val_type = REAL_TYPE; //assume it is a real by default
     p->next = NULL;
-    p->val = NULL;
     p->symbol_type = ARG_TYPE;
 
     return p;
@@ -143,12 +141,13 @@ SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName)
  * $$ = createUserFunction($2, $3, $6, $7);
  *  LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
  */
-SYMBOL_TABLE_NODE* createUserFunction(RETURN_VALUE* returnValueNode,char* functionName,SYMBOL_TABLE_NODE* argumentList, AST_NODE* functionDefinition)
-{
+SYMBOL_TABLE_NODE *
+createUserFunction(RETURN_VALUE *returnValueNode, char *functionName, SYMBOL_TABLE_NODE *argumentList,
+                   AST_NODE *functionDefinition) {
     SYMBOL_TABLE_NODE *p;
     size_t nodeSize;
 
-    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE);
+    nodeSize = sizeof(SYMBOL_TABLE_NODE) + sizeof(AST_NODE) + sizeof(RETURN_VALUE) + sizeof(SYMB_VAL_STACK_ELEMENT);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
@@ -162,12 +161,51 @@ SYMBOL_TABLE_NODE* createUserFunction(RETURN_VALUE* returnValueNode,char* functi
 }
 
 /*
+ * Creates element and pushes onto stack so we can use user functions recursively. Top of stack is considered to be
+ * end of linked list
+ * Returns the top of the stack
+ */
+SYMB_VAL_STACK_ELEMENT* createNewStackElement(SYMBOL_TABLE_NODE* formalParameter, AST_NODE* actualParameter)
+{
+    SYMB_VAL_STACK_ELEMENT* currentStackElement = formalParameter->stack;
+    SYMB_VAL_STACK_ELEMENT* topOfStack = formalParameter->stack;
+
+    SYMB_VAL_STACK_ELEMENT *newStackElement;
+    size_t nodeSize;
+
+    nodeSize = sizeof(SYMB_VAL_STACK_ELEMENT);
+    if ((newStackElement = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    newStackElement->next = NULL;
+    newStackElement->valueOnStack = actualParameter;
+
+    //find top of stack;
+    while(currentStackElement != NULL)
+    {
+        topOfStack = currentStackElement;
+        currentStackElement = currentStackElement->next;
+    }
+    if (topOfStack == NULL)
+    {
+        formalParameter->stack = newStackElement;
+    }
+    else
+        topOfStack->next = newStackElement;
+    //currentStackElement = newStackElement;
+
+    return newStackElement;
+}
+
+
+
+/*
  * Takes a symbol which needs to be converted into a ASTNODE so that it can be sent to the evaluator
  */
-AST_NODE* callToUserFunction(char* userFunctionName,AST_NODE* actualParameters)
-{
+AST_NODE *callToUserFunction(char *userFunctionName, AST_NODE *actualParameters) {
 
-    AST_NODE* constructedLambdaCall = function(userFunctionName,actualParameters); //create a new AST node which we will return after constructing the appropriate function node
+    AST_NODE *constructedLambdaCall = function(userFunctionName,
+                                               actualParameters); //create a new AST node which we will return after constructing the appropriate function node
     constructedLambdaCall->type = SYMBOL_TYPE; //we do this so that when we get to the evaluator we will process this correctly
     return constructedLambdaCall;
 
@@ -376,6 +414,22 @@ void freeNode(AST_NODE *p) {
     free(p);
 }
 
+void popEvaluatedStackElement( SYMB_VAL_STACK_ELEMENT* bottomOfStack)
+{
+    SYMB_VAL_STACK_ELEMENT* currentElementOnStack = bottomOfStack;
+    SYMB_VAL_STACK_ELEMENT* previousElementOnStack = bottomOfStack;
+    while(previousElementOnStack->next != NULL)
+    {
+        if (currentElementOnStack->next == NULL)
+        {
+            previousElementOnStack->next = NULL;
+        }
+        currentElementOnStack = currentElementOnStack->next;
+    }
+    //free(currentElementOnStack);
+    previousElementOnStack->next = NULL;
+}
+
 //
 // evaluate an abstract syntax tree
 //
@@ -539,8 +593,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 //returns final printed value
                 break;
             case EQUALOP:
-                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName,p))
-                {
+                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName, p)) {
                     if (eval(conditionalStatement).value == eval(conditionalStatement->next).value) {
                         result.value = eval(trueStatement).value;
                     } else {
@@ -549,8 +602,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 }//produce the correct leg
                 break;
             case SMALLER:
-                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName,p))
-                {
+                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName, p)) {
                     if (eval(conditionalStatement).value < eval(conditionalStatement->next).value) {
                         result.value = eval(trueStatement).value;
                     } else {
@@ -559,8 +611,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 }//produce the correct leg
                 break;
             case LARGER:
-                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName,p))
-                {
+                if (validateMinimumNumberOfOperands(operandCount, &(result.value), enumeratedFunctionName, p)) {
                     if (eval(conditionalStatement).value > eval(conditionalStatement->next).value) {
                         result.value = eval(trueStatement).value;
                     } else {
@@ -580,21 +631,24 @@ RETURN_VALUE eval(AST_NODE *p) {
         }
     } else if (p->type == SYMBOL_TYPE) {
         SYMBOL_TABLE_NODE *tableWithAllInformation = evaluateSymbol(p);
+        SYMB_VAL_STACK_ELEMENT* topSymbolOnStack;
 
         switch (tableWithAllInformation->symbol_type) {
             case VARIABLE_TYPE:
 //                tableWithAllInformation = evaluateSymbol(p);
 //                //tableWithAllInformation = evaluateSymbol(p);
-//                result.value = eval(tableWithAllInformation->val).value;
-//                result.type = tableWithAllInformation->val_type;
-//                break;
-            case ARG_TYPE:
                 result.value = eval(tableWithAllInformation->val).value;
+                result.type = tableWithAllInformation->val_type;
+                break;
+            case ARG_TYPE:
+                topSymbolOnStack = getTopOfStack(tableWithAllInformation);
+                result.value = eval(topSymbolOnStack->valueOnStack).value;
+                popEvaluatedStackElement(tableWithAllInformation->stack);
                 result.type = tableWithAllInformation->val_type;
                 break;
             case LAMBDA_TYPE:
                 //evaluate lambda definition by traversing through arguments
-                tableWithAllInformation = evaluateSymbol(makeSymbol(p->data.function.name));  //we need to force our eval to find the correct symbol
+                //tableWithAllInformation = evaluateSymbol(makeSymbol(p->data.function.name));  //we need to force our eval to find the correct symbol
                 result = evaluateLambdaSymbol(p);
                 break;
         }
@@ -662,8 +716,8 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
         case LARGER:
         case EQUALOP:
             if (functionThatContainsOperandList->data.function.opList == NULL ||
-                    functionThatContainsOperandList->data.function.opList == NULL ||
-                    functionThatContainsOperandList->data.function.opList == NULL) {
+                functionThatContainsOperandList->data.function.opList->next == NULL ||
+                functionThatContainsOperandList->data.function.opList->next->next == NULL) {
                 printf("ERROR: too few parameters for the function %s\n", funcs[enumeratedFunctionName]);
                 *resultValue = 0.0;
             }
@@ -690,6 +744,9 @@ void considerNextOperand(int *operandCount, AST_NODE **currentOperand) {
 SYMBOL_TABLE_NODE *evaluateSymbol(AST_NODE *symbolNodeToEvaluate) {
 
     AST_NODE *currentParent = symbolNodeToEvaluate; //we may not find the symbol in this scope and need to go to a higher level. This is how we go to higher levels
+    if (currentParent->scope == NULL) {
+        currentParent = symbolNodeToEvaluate->parent;
+    }
     SYMBOL_TABLE_NODE *currentSymbol = currentParent->scope; //this is the placeholder to go through the list of symbols to match to the variable
 
     //this is the name of the variable we are looking for. i.e. int a = ?. In this the name refers to a
@@ -703,7 +760,7 @@ SYMBOL_TABLE_NODE *evaluateSymbol(AST_NODE *symbolNodeToEvaluate) {
                NULL) { //traverses through the list associated with the current parent before moving to the higher level
             if (strcmp(currentSymbol->ident, variableToCheckName) == 0) //found correct symbol in list
             {
-                if (currentSymbol->val->type != SYMBOL_TYPE) {
+                if (currentSymbol->symbol_type != VARIABLE_TYPE || currentSymbol->val->type != SYMBOL_TYPE) {
                     return currentSymbol;//we found the correct symbol with its associated value
                 } else { //update to new symbol to check for
 
@@ -728,29 +785,47 @@ SYMBOL_TABLE_NODE *evaluateSymbol(AST_NODE *symbolNodeToEvaluate) {
 
 //evaluate lambda definition by traversing through arguments
 //userFunctionToEvaluate is the tree with node which has the user defined function
-RETURN_VALUE evaluateLambdaSymbol(AST_NODE* uFunctionToEvaluate)
-{
+RETURN_VALUE evaluateLambdaSymbol(AST_NODE *uFunctionToEvaluate) {
     //first we must find where the function is located within the proper scope
-    SYMBOL_TABLE_NODE *userFunctionDefinition = evaluateSymbol(uFunctionToEvaluate); //this stores the predefined function with NULLed arguments
-    //SYMBOL_TABLE_NODE *formalArgumentList = userFunctionDefinition->val->scope;
+    SYMBOL_TABLE_NODE *userFunctionDefinition = evaluateSymbol(
+            uFunctionToEvaluate); //this stores the predefined function with list of arguments
+
     SYMBOL_TABLE_NODE *currentFormalArgument = userFunctionDefinition->val->scope;
     AST_NODE *currentActualArgument = uFunctionToEvaluate->data.function.opList;
     RETURN_VALUE evaluatedFunction;
 
-    while(currentFormalArgument != NULL) //assign values to currently NULLed formal parameters
+    SYMB_VAL_STACK_ELEMENT *newFunctionStackElement = createNewStackElement( userFunctionDefinition, userFunctionDefinition->val);
+
+
+    while (currentFormalArgument != NULL) //assign values to currently NULLed formal parameters
     {
-        if (currentActualArgument == NULL)
-        {
+        if (currentActualArgument == NULL) {
             printf("ERROR: too few parameters for the function %s\n", uFunctionToEvaluate->data.function.name);
             exit(-2);
         }
 
-        currentFormalArgument->val = currentActualArgument;
+//        currentFormalArgument->val = currentActualArgument; //instead of this we will push items on the stack to be evaluated recursively
+        createNewStackElement(currentFormalArgument,currentActualArgument);
         //update parameters to traverse
         currentFormalArgument = currentFormalArgument->next;
         currentActualArgument = currentActualArgument->next;
     }
-    evaluatedFunction = eval(userFunctionDefinition->val);
+    //newFunctionStackElement->valueOnStack = userFunctionDefinition->val;
+    evaluatedFunction = eval(newFunctionStackElement->valueOnStack);
+    popEvaluatedStackElement(userFunctionDefinition->stack);
 
     return evaluatedFunction;
+}
+
+SYMB_VAL_STACK_ELEMENT* getTopOfStack(SYMBOL_TABLE_NODE* symbolVariableWithStack)
+{
+        SYMB_VAL_STACK_ELEMENT* currentElementOnStack = symbolVariableWithStack->stack;
+        SYMB_VAL_STACK_ELEMENT* previousElementOnStack = NULL;
+        while(currentElementOnStack != NULL)
+        {
+            previousElementOnStack = currentElementOnStack;
+            currentElementOnStack = currentElementOnStack->next;
+        }
+        return previousElementOnStack;
+
 }
