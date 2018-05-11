@@ -118,7 +118,7 @@ AST_NODE* sExprList(AST_NODE* headOfList, AST_NODE* tailList);
 AST_NODE* setScope(SYMBOL_TABLE_NODE* childScope, AST_NODE* parentList);
 SYMBOL_TABLE_NODE *let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, SYMBOL_TABLE_NODE *next);
 SYMBOL_TABLE_NODE* createArgumentNode(char* argumentName);
-double roundIntegerFromDouble(AST_NODE *symbolValue, char* symbolName);
+double roundIntegerFromDouble(double symbolValue, char *symbolName);
 SYMB_VAL_STACK_ELEMENT* createNewStackElement(SYMBOL_TABLE_NODE* formalParameter, AST_NODE* actualParameter);
 
 

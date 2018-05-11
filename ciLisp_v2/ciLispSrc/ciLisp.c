@@ -1,7 +1,7 @@
 /**
  *
  * Name: Samier Mahagna
- * Lab/Task: Lab 9 Task 7
+ * CiLisp Compiler Program
  *
  */
 
@@ -10,7 +10,6 @@
 #include "ciLisp.h"
 
 #define ROUND_UP_FLOOR .5
-#define MAX_NUMBER_OF_CONDITIONALS 3
 #define MINIMUM_BINARY_OPERANDS 2
 
 //
@@ -42,24 +41,6 @@ AST_NODE *setScope(SYMBOL_TABLE_NODE *childScope, AST_NODE *parent) {
     return parent;
 }
 
-//checks one symbol table list for definitions of a variable. If the variable exists then we produce an error and halt program
-void checkForDuplicateSymbols(SYMBOL_TABLE_NODE *list1, SYMBOL_TABLE_NODE *list2) {
-    //check each element from one list with each element from the other
-    SYMBOL_TABLE_NODE *currentVariableList1 = list1;
-    SYMBOL_TABLE_NODE *currentVariableList2 = list2;
-    while ((currentVariableList1) != NULL && currentVariableList1->ident != NULL) {
-        while (((currentVariableList2) != NULL) && currentVariableList2->ident != NULL) {
-            //if they are the same then produce error
-            if (strcmp(currentVariableList1->ident, currentVariableList2->ident) == 0) {
-                yyerror("ERROR: VARIABLE PREVIOUSLY DEFINED!!!\n");
-                exit(-22);
-            }
-            currentVariableList2 = currentVariableList2->next;
-        }
-        currentVariableList1 = currentVariableList1->next;
-    }
-
-}
 
 //
 // create a list which is a list of symbols to be assigned to a function
@@ -103,7 +84,7 @@ let_elem(RETURN_VALUE *returnValNode, char *symbolName, AST_NODE *symbolValue, S
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-//    if (returnValNode->type == INTEGER_TYPE)//will change the value inside actual node
+//    if (returnValNode->type == INTEGER_TYPE )//will change the value inside actual node
 //        symbolValue->data.number.value = roundIntegerFromDouble(symbolValue, symbolName);
 
     symbolValue->parent = makeSymbol(symbolName);
@@ -128,7 +109,7 @@ SYMBOL_TABLE_NODE *createArgumentNode(char *argumentName) {
         yyerror("out of memory");
 
     p->ident = argumentName;
-    p->val_type = REAL_TYPE; //assume it is a real by default
+    p->val_type = REAL_TYPE; //assume it is a real by default and change in another function if assigned that value
     p->next = NULL;
     p->symbol_type = ARG_TYPE;
 
@@ -139,8 +120,6 @@ SYMBOL_TABLE_NODE *createArgumentNode(char *argumentName) {
  * Function that defines a user function and attaches the argument list to it
  * The function is represented by a symbol, i.e.: f(x,y) will be a symbol of lambda type which has the necessary features attached
  *
- * $$ = createUserFunction($2, $3, $6, $7);
- *  LPAREN type SYMBOL LAMBDA LPAREN arg_list RPAREN s_expr RPAREN //( type symbol lambda ( arg_list ) s_expr );
  */
 SYMBOL_TABLE_NODE *
 createUserFunction(RETURN_VALUE *returnValueNode, char *functionName, SYMBOL_TABLE_NODE *argumentList,
@@ -166,10 +145,9 @@ createUserFunction(RETURN_VALUE *returnValueNode, char *functionName, SYMBOL_TAB
  * end of linked list
  * Returns the top of the stack
  */
-SYMB_VAL_STACK_ELEMENT* createNewStackElement(SYMBOL_TABLE_NODE* formalParameter, AST_NODE* actualParameter)
-{
-    SYMB_VAL_STACK_ELEMENT* currentStackElement = formalParameter->stack;
-    SYMB_VAL_STACK_ELEMENT* topOfStack = formalParameter->stack;
+SYMB_VAL_STACK_ELEMENT *createNewStackElement(SYMBOL_TABLE_NODE *formalParameter, AST_NODE *actualParameter) {
+    SYMB_VAL_STACK_ELEMENT *currentStackElement = formalParameter->stack;
+    SYMB_VAL_STACK_ELEMENT *topOfStack = formalParameter->stack;
 
     SYMB_VAL_STACK_ELEMENT *newStackElement;
     size_t nodeSize;
@@ -182,22 +160,17 @@ SYMB_VAL_STACK_ELEMENT* createNewStackElement(SYMBOL_TABLE_NODE* formalParameter
     newStackElement->valueOnStack = actualParameter;
 
     //find top of stack;
-    while(currentStackElement != NULL)
-    {
+    while (currentStackElement != NULL) {
         topOfStack = currentStackElement;
         currentStackElement = currentStackElement->next;
     }
-    if (topOfStack == NULL)
-    {
+    if (topOfStack == NULL) {
         formalParameter->stack = newStackElement;
-    }
-    else
+    } else
         topOfStack->next = newStackElement;
-    //currentStackElement = newStackElement;
 
     return newStackElement;
 }
-
 
 
 /*
@@ -215,18 +188,17 @@ AST_NODE *callToUserFunction(char *userFunctionName, AST_NODE *actualParameters)
 /*
  * Rounds numbers up if .5 or greater and rounds down otherwise
  */
-double roundIntegerFromDouble(AST_NODE *symbolValue, char *symbolName) {
-    double temporaryDouble;
+double roundIntegerFromDouble(double symbolValue, char *symbolName) {
 
-    temporaryDouble = eval(symbolValue).value;
-    if (fmod(temporaryDouble, 1.0) >= ROUND_UP_FLOOR) //round up if decimal is greater than or equal to .5
+    //temporaryDouble = eval(symbolValue).value;
+    if (fmod(symbolValue, 1.0) >= ROUND_UP_FLOOR) //round up if decimal is greater than or equal to .5
     {
-        temporaryDouble += 1; //increase by 1 to simulate round up
+        symbolValue += 1; //increase by 1 to simulate round up
         printf("WARNING: incompatible type assignment for variables %s\n", symbolName);
     }
-    temporaryDouble = ((int) temporaryDouble) / 1; //lose decimal
+    symbolValue = ((int) symbolValue) / 1; //lose decimal
 
-    return temporaryDouble; //update value
+    return symbolValue; //update value
 }
 
 //
@@ -296,21 +268,13 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
     AST_NODE *p;
     size_t nodeSize;
 
-    AST_NODE *legs;
-
-
     // allocate space for the fixed sie and the variable part (union)
-    nodeSize = sizeof(AST_NODE) + sizeof(FUNCTION_AST_NODE);
+    nodeSize = (sizeof(AST_NODE)) + sizeof(FUNCTION_AST_NODE);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-    nodeSize = sizeof(AST_NODE) + sizeof(FUNCTION_AST_NODE);
-    if ((legs = malloc(nodeSize)) == NULL)
-        yyerror("out of memory");
+
     p->scope = NULL;
     p->parent = NULL;
-    legs->scope = NULL;
-    legs->parent = NULL;
-
 
     //assign parents appropriately
     //set parents
@@ -332,11 +296,15 @@ AST_NODE *conditional(AST_NODE *conditionalEvaluation, AST_NODE *trueStatement, 
             setScope((falseStatement->scope), conditionalEvaluation);
     }
 
-    trueStatement->next = falseStatement;
-    conditionalEvaluation->next = trueStatement;
-    p->data.function.opList = conditionalEvaluation;
-    if (conditionalEvaluation != NULL)
+    if (trueStatement != NULL && conditionalEvaluation != NULL) {
+        trueStatement->next = falseStatement;
+        conditionalEvaluation->next = trueStatement;
+        p->data.function.opList = conditionalEvaluation;
         p->data.function.name = conditionalEvaluation->data.function.name;
+    }
+    else
+        p->data.function.opList = NULL;
+
     p->type = FUNC_TYPE;
 
 
@@ -415,19 +383,18 @@ void freeNode(AST_NODE *p) {
     free(p);
 }
 
-void popEvaluatedStackElement( SYMB_VAL_STACK_ELEMENT* bottomOfStack)
-{
-    SYMB_VAL_STACK_ELEMENT* currentElementOnStack = bottomOfStack;
-    SYMB_VAL_STACK_ELEMENT* previousElementOnStack = bottomOfStack;
-    while(previousElementOnStack->next != NULL)
-    {
-        if (currentElementOnStack->next == NULL)
-        {
+/*
+ * Removes the top element of the pseudo stack structure when recursively evaluating a function
+ */
+void popEvaluatedStackElement(SYMB_VAL_STACK_ELEMENT *bottomOfStack) {
+    SYMB_VAL_STACK_ELEMENT *currentElementOnStack = bottomOfStack;
+    SYMB_VAL_STACK_ELEMENT *previousElementOnStack = bottomOfStack;
+    while (previousElementOnStack->next != NULL) {
+        if (currentElementOnStack->next == NULL) {
             previousElementOnStack->next = NULL;
         }
         currentElementOnStack = currentElementOnStack->next;
     }
-    //free(currentElementOnStack);
     previousElementOnStack->next = NULL;
 }
 
@@ -622,7 +589,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 }//produce the correct leg
                 break;
             case RAND: //produce a random number
-                result.value = (double) rand() / (double) rand();
+                result.value = (double) rand() / (double) RAND_MAX;
                 break;
             case READ:
                 printf("\nread %s := ", p->parent->data.symbol.name);
@@ -633,12 +600,10 @@ RETURN_VALUE eval(AST_NODE *p) {
         }
     } else if (p->type == SYMBOL_TYPE) {
         SYMBOL_TABLE_NODE *tableWithAllInformation = evaluateSymbol(p);
-        SYMB_VAL_STACK_ELEMENT* topSymbolOnStack;
+        SYMB_VAL_STACK_ELEMENT *topSymbolOnStack;
 
         switch (tableWithAllInformation->symbol_type) {
             case VARIABLE_TYPE:
-//                tableWithAllInformation = evaluateSymbol(p);
-//                //tableWithAllInformation = evaluateSymbol(p);
                 result.value = eval(tableWithAllInformation->val).value;
                 result.type = tableWithAllInformation->val_type;
                 break;
@@ -649,13 +614,13 @@ RETURN_VALUE eval(AST_NODE *p) {
                 result.type = tableWithAllInformation->val_type;
                 break;
             case LAMBDA_TYPE:
-                //evaluate lambda definition by traversing through arguments
-                //tableWithAllInformation = evaluateSymbol(makeSymbol(p->data.function.name));  //we need to force our eval to find the correct symbol
                 result = evaluateLambdaSymbol(p);
                 break;
         }
-
+        if (result.type == INTEGER_TYPE) //round variable if it is an integer
+            result.value = roundIntegerFromDouble(result.value,p->data.symbol.name);
     }
+
 
     return result;
 }
@@ -671,10 +636,6 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
                      "min",
                      "exp2", "cbrt", "hypot", "print", "equal", "smaller", "greater", "rand", "read", ""};
 
-    //for readability
-//    AST_NODE *conditionalStatement = functionThatContainsOperandList->data.function.opList;
-//    AST_NODE *trueStatement = functionThatContainsOperandList->data.function.opList;
-//    AST_NODE *falseStatement = functionThatContainsOperandList->data.function.opList;
 
     switch (enumeratedFunctionName) {
         //SINGLEOPERANDS
@@ -718,8 +679,7 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
         case LARGER:
         case EQUALOP:
             if (functionThatContainsOperandList->data.function.opList == NULL ||
-                functionThatContainsOperandList->data.function.opList->next == NULL ||
-                functionThatContainsOperandList->data.function.opList->next->next == NULL) {
+                functionThatContainsOperandList->data.function.opList->next == NULL) {
                 printf("ERROR: too few parameters for the function %s\n", funcs[enumeratedFunctionName]);
                 *resultValue = 0.0;
             }
@@ -738,6 +698,25 @@ int validateMinimumNumberOfOperands(int numberOfOperands, double *resultValue, i
 void considerNextOperand(int *operandCount, AST_NODE **currentOperand) {
     (*operandCount)++;
     *currentOperand = (*currentOperand)->next;
+}
+
+//checks one symbol table list for definitions of a variable. If the variable exists then we produce an error and halt program
+void checkForDuplicateSymbols(SYMBOL_TABLE_NODE *list1, SYMBOL_TABLE_NODE *list2) {
+    //check each element from one list with each element from the other
+    SYMBOL_TABLE_NODE *currentVariableList1 = list1;
+    SYMBOL_TABLE_NODE *currentVariableList2 = list2;
+    while ((currentVariableList1) != NULL && currentVariableList1->ident != NULL) {
+        while (((currentVariableList2) != NULL) && currentVariableList2->ident != NULL) {
+            //if they are the same then produce error
+            if (strcmp(currentVariableList1->ident, currentVariableList2->ident) == 0) {
+                yyerror("ERROR: VARIABLE PREVIOUSLY DEFINED!!!\n");
+                exit(-22);
+            }
+            currentVariableList2 = currentVariableList2->next;
+        }
+        currentVariableList1 = currentVariableList1->next;
+    }
+
 }
 
 //
@@ -796,7 +775,8 @@ RETURN_VALUE evaluateLambdaSymbol(AST_NODE *uFunctionToEvaluate) {
     AST_NODE *currentActualArgument = uFunctionToEvaluate->data.function.opList;
     RETURN_VALUE evaluatedFunction;
 
-    SYMB_VAL_STACK_ELEMENT *newFunctionStackElement = createNewStackElement( userFunctionDefinition, userFunctionDefinition->val);
+    SYMB_VAL_STACK_ELEMENT *newFunctionStackElement = createNewStackElement(userFunctionDefinition,
+                                                                            userFunctionDefinition->val);
 
 
     while (currentFormalArgument != NULL) //assign values to currently NULLed formal parameters
@@ -806,28 +786,24 @@ RETURN_VALUE evaluateLambdaSymbol(AST_NODE *uFunctionToEvaluate) {
             exit(-2);
         }
 
-//        currentFormalArgument->val = currentActualArgument; //instead of this we will push items on the stack to be evaluated recursively
-        createNewStackElement(currentFormalArgument,currentActualArgument);
+        createNewStackElement(currentFormalArgument, currentActualArgument);
         //update parameters to traverse
         currentFormalArgument = currentFormalArgument->next;
         currentActualArgument = currentActualArgument->next;
     }
-    //newFunctionStackElement->valueOnStack = userFunctionDefinition->val;
     evaluatedFunction = eval(newFunctionStackElement->valueOnStack);
     popEvaluatedStackElement(userFunctionDefinition->stack);
 
     return evaluatedFunction;
 }
 
-SYMB_VAL_STACK_ELEMENT* getTopOfStack(SYMBOL_TABLE_NODE* symbolVariableWithStack)
-{
-        SYMB_VAL_STACK_ELEMENT* currentElementOnStack = symbolVariableWithStack->stack;
-        SYMB_VAL_STACK_ELEMENT* previousElementOnStack = NULL;
-        while(currentElementOnStack != NULL)
-        {
-            previousElementOnStack = currentElementOnStack;
-            currentElementOnStack = currentElementOnStack->next;
-        }
-        return previousElementOnStack;
+SYMB_VAL_STACK_ELEMENT *getTopOfStack(SYMBOL_TABLE_NODE *symbolVariableWithStack) {
+    SYMB_VAL_STACK_ELEMENT *currentElementOnStack = symbolVariableWithStack->stack;
+    SYMB_VAL_STACK_ELEMENT *previousElementOnStack = NULL;
+    while (currentElementOnStack != NULL) {
+        previousElementOnStack = currentElementOnStack;
+        currentElementOnStack = currentElementOnStack->next;
+    }
+    return previousElementOnStack;
 
 }
