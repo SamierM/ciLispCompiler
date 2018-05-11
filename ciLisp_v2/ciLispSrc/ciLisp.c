@@ -194,10 +194,10 @@ double roundIntegerFromDouble(double symbolValue, char *symbolName) {
     if (fmod(symbolValue, 1.0) >= ROUND_UP_FLOOR) //round up if decimal is greater than or equal to .5
     {
         symbolValue += 1; //increase by 1 to simulate round up
-        printf("WARNING: incompatible type assignment for variables %s\n", symbolName);
     }
     symbolValue = ((int) symbolValue) / 1; //lose decimal
 
+    printf("WARNING: incompatible type assignment for variables %s\n", symbolName);
     return symbolValue; //update value
 }
 
@@ -360,10 +360,11 @@ RETURN_VALUE *makeDataType(char *variableTypeAsString) {
  * with formatting
  */
 void printAnswer(RETURN_VALUE valueToPrint) {
-    if (valueToPrint.type == REAL_TYPE) {
-        printf("%.2lf\n", valueToPrint.value);
-    } else {
+    if (valueToPrint.type == INTEGER_TYPE) {
         printf("%.0f", valueToPrint.value);
+
+    } else {
+        printf("%.2lf\n", valueToPrint.value);
     }
 }
 
@@ -617,7 +618,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 result = evaluateLambdaSymbol(p);
                 break;
         }
-        if (result.type == INTEGER_TYPE) //round variable if it is an integer
+        if (result.type == INTEGER_TYPE && fmod(result.value,1.0)) //round variable if it is an integer
             result.value = roundIntegerFromDouble(result.value,p->data.symbol.name);
     }
 

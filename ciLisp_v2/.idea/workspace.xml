@@ -36,8 +36,8 @@
       <file leaf-file-name="ciLisp.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="619" column="77" lean-forward="true" selection-start-line="619" selection-start-column="77" selection-end-line="619" selection-end-column="77" />
+            <state relative-caret-position="282">
+              <caret line="623" column="0" lean-forward="true" selection-start-line="623" selection-start-column="0" selection-end-line="623" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -56,8 +56,8 @@
       <file leaf-file-name="ciLisp.l" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2049">
-              <caret line="10" column="161" lean-forward="false" selection-start-line="10" selection-start-column="161" selection-end-line="10" selection-end-column="161" />
+            <state relative-caret-position="271">
+              <caret line="104" column="4" lean-forward="false" selection-start-line="104" selection-start-column="4" selection-end-line="104" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -114,9 +114,9 @@
         <option value="$PROJECT_DIR$/ciLisp_v2/ciLispSrc/ciLisp.h" />
         <option value="$PROJECT_DIR$/ciLisp_v2/ciLispSrc/ciLisp.y" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.l" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.y" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.h" />
+        <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.l" />
         <option value="$PROJECT_DIR$/ciLispSrc/ciLisp.c" />
       </list>
     </option>
@@ -226,12 +226,12 @@
       <workItem from="1524693299969" duration="23369000" />
       <workItem from="1525039498099" duration="43287000" />
       <workItem from="1525812281205" duration="2812000" />
-      <workItem from="1525886145791" duration="10173000" />
+      <workItem from="1525886145791" duration="11126000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="184761000" />
+    <option name="totallyTimeSpent" value="185714000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -273,10 +273,17 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/ciLispSrc/ciLisp.c</url>
+          <line>193</line>
+          <option name="timeStamp" value="103" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="103" />
+      <option name="time" value="104" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -556,14 +563,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2049">
-          <caret line="10" column="161" lean-forward="false" selection-start-line="10" selection-start-column="161" selection-end-line="10" selection-end-column="161" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmake-build-debug/ciLispParser.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="366">
@@ -580,10 +579,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.l">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="271">
+          <caret line="104" column="4" lean-forward="false" selection-start-line="104" selection-start-column="4" selection-end-line="104" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ciLispSrc/ciLisp.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="619" column="77" lean-forward="true" selection-start-line="619" selection-start-column="77" selection-end-line="619" selection-end-column="77" />
+        <state relative-caret-position="282">
+          <caret line="623" column="0" lean-forward="true" selection-start-line="623" selection-start-column="0" selection-end-line="623" selection-end-column="0" />
           <folding />
         </state>
       </provider>
