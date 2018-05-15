@@ -590,7 +590,7 @@ RETURN_VALUE eval(AST_NODE *p) {
                 }//produce the correct leg
                 break;
             case RAND: //produce a random number
-                result.value = (double) rand() / (double) RAND_MAX;
+                result.value = (double) rand() + (double) rand() / (double) RAND_MAX;
                 break;
             case READ:
                 printf("\nread %s := ", p->parent->data.symbol.name);
@@ -793,6 +793,8 @@ RETURN_VALUE evaluateLambdaSymbol(AST_NODE *uFunctionToEvaluate) {
         currentActualArgument = currentActualArgument->next;
     }
     evaluatedFunction = eval(newFunctionStackElement->valueOnStack);
+    if (userFunctionDefinition->val_type == INTEGER_TYPE)
+        evaluatedFunction.type = INTEGER_TYPE;
     popEvaluatedStackElement(userFunctionDefinition->stack);
 
     return evaluatedFunction;

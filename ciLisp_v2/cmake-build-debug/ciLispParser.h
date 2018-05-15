@@ -72,9 +72,8 @@ union YYSTYPE
     struct return_value* returnNode;
     struct ast_node* astNode;
     struct symbol_table_node* symbolNode;
-    struct symbol_table_node* scopeNode;
 
-#line 78 "/cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2/cmake-build-debug/ciLispParser.h" /* yacc.c:1909  */
+#line 77 "/cygdrive/c/Users/samie/Desktop/School/Spring 2018/COMP 232 AJ/CiLisp/ciLisp_v2/cmake-build-debug/ciLispParser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

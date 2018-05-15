@@ -8,7 +8,6 @@
     struct return_value* returnNode;
     struct ast_node* astNode;
     struct symbol_table_node* symbolNode;
-    struct symbol_table_node* scopeNode;
 };
 
 %token <sval> FUNC
@@ -31,8 +30,11 @@
 program:
     s_expr EOL {
         fprintf(stderr, "yacc: program ::= s_expr EOL\n");
+        RETURN_VALUE returnValue;
         if ($1) {
-            printf("\nyacc: %lf\n",(eval($1)).value);
+            returnValue =(eval($1));
+            printAnswer(returnValue);
+            //printf("\nyacc: %lf\n",returnValue.value);
             freeNode($1);
         }
     };
